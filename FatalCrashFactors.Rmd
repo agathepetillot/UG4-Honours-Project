@@ -1,0 +1,127 @@
+---
+title: "Plot data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r Incident Reports, echo=FALSE}
+dat<- read.csv("~/UG4-Honours-Project.git/datasets/SGO-2021-01_Incident_Reports_ADAS.csv")
+#View(dat)
+```
+
+```{r packages, echo=FALSE}
+# Load Packages
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+library(countrycode)
+library(dplyr)
+```
+
+```{r filter data, echo=FALSE}
+## Selecting variables
+dat1 <- dat %>% select("Make", "Model", "Model.Year", "Mileage", "ADAS.ADS.Version", "ADS.Equipped.", "Automation.System.Engaged.", "Incident.Time..24.00.", "City", "State", "Roadway.Type", "Roadway.Surface", "Roadway.Description", "Posted.Speed.Limit..MPH.", "Lighting", "Weather...Clear", "Weather...Snow", "Weather...Cloudy", "Weather...Fog.Smoke", "Weather...Rain", "Weather...Severe.Wind", "Crash.With", "Highest.Injury.Severity","Property.Damage.", "CP.Pre.Crash.Movement", "CP.Pre.Crash.Movement", "SV.Pre.Crash.Movement", "SV.Precrash.Speed..MPH.")
+summary(dat1)
+```
+
+```{r Factor and Fix Column Values}
+dat1$Weather...Clear[dat1$Weather...Clear == ' '] <- "N"
+dat1$Weather...Snow[dat1$Weather...Snow == ' '] <- "N"
+dat1$Weather...Cloudy[dat1$Weather...Cloudy == ' '] <- "N"
+dat1$Weather...Fog.Smoke[dat1$Weather...Fog.Smoke == ' '] <- "N"
+dat1$Weather...Rain[dat1$Weather...Rain == ' '] <- "N"
+dat1$Weather...Severe.Wind[dat1$Weather...Severe.Wind == ' '] <- "N"
+
+dat1[dat1 == ''] <- NA
+dat1[dat1 == ' '] <- NA
+
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "Fatality"] <- 5
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "Minor"] <- 2
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "Moderate"] <- 3
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "No Injuries Reported"] <- 1
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "Serious"] <- 4
+dat1$Highest.Injury.Severity[dat1$Highest.Injury.Severity == "Unknown"] <- 0
+
+dat1$Make<-as.factor(dat1$Make)
+dat1$Model<-as.factor(dat1$Model)
+dat1$ADAS.ADS.Version<-as.factor(dat1$ADAS.ADS.Version)
+dat1$ADS.Equipped.<-as.factor(dat1$ADS.Equipped.)
+dat1$Automation.System.Engaged.<-as.factor(dat1$Automation.System.Engaged.)
+dat1$Incident.Time..24.00.<-as.factor(dat1$Incident.Time..24.00.)
+dat1$City<-as.factor(dat1$City)
+dat1$State<-as.factor(dat1$State)
+dat1$Roadway.Type<-as.factor(dat1$Roadway.Type)
+dat1$Roadway.Description<-as.factor(dat1$Roadway.Description)
+dat1$Roadway.Surface<-as.factor(dat1$Roadway.Surface)
+dat1$Lighting<-as.factor(dat1$Lighting)
+dat1$Weather...Clear<-as.factor(dat1$Weather...Clear)
+dat1$Weather...Snow<-as.factor(dat1$Weather...Snow)
+dat1$Weather...Cloudy<-as.factor(dat1$Weather...Cloudy)
+dat1$Weather...Fog.Smoke<-as.factor(dat1$Weather...Fog.Smoke)
+dat1$Weather...Rain<-as.factor(dat1$Weather...Rain)
+dat1$Weather...Severe.Wind<-as.factor(dat1$Weather...Severe.Wind)
+dat1$Crash.With<-as.factor(dat1$Crash.With)
+dat1$Highest.Injury.Severity<-as.factor(dat1$Highest.Injury.Severity)
+dat1$Property.Damage.<-as.factor(dat1$Property.Damage.)
+dat1$CP.Pre.Crash.Movement<-as.factor(dat1$CP.Pre.Crash.Movement)
+dat1$SV.Pre.Crash.Movement<-as.factor(dat1$SV.Pre.Crash.Movement)
+summary(dat1)
+```
+
+```{r box plot values, echo=FALSE}
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Make"]) #yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Model"]) #yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Model.Year"]) #no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Mileage"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "ADAS.ADS.Version"]) #no but interesting to use for something else
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "ADS.Equipped."]) #maybe
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Automation.System.Engaged."])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Incident.Time..24.00."])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "City"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "State"])#maybe
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Roadway.Type"])#yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Roadway.Surface"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Roadway.Description"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Posted.Speed.Limit..MPH."])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Lighting"])#yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Weather...Clear"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Weather...Snow"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Weather...Cloudy"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Weather...Fog.Smoke"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Weather...Rain"])#no
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Crash.With"])#yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "Property.Damage."])#yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "CP.Pre.Crash.Movement"])#yes
+boxplot(dat1[, "Highest.Injury.Severity"] ~ dat1[, "SV.Pre.Crash.Movement"])#yes
+```
+
+```{r filter significant values, echo=FALSE}
+dat_filtered <- dat1 %>% select("Make", "Model", "ADS.Equipped.", "State", "Roadway.Type", "Lighting", "Crash.With", "Highest.Injury.Severity","Property.Damage.", "CP.Pre.Crash.Movement", "CP.Pre.Crash.Movement", "SV.Pre.Crash.Movement", "SV.Precrash.Speed..MPH.")
+summary(dat_filtered)
+```
+
+```{r get linear model, echo=FALSE}
+
+fatality <- as.numeric(dat1$Highest.Injury.Severity)
+
+modelall <- lm(fatality~ Make + Model + ADS.Equipped.+State + Roadway.Type + Lighting + Crash.With + Property.Damage. + CP.Pre.Crash.Movement + CP.Pre.Crash.Movement + SV.Pre.Crash.Movement, data = dat_filtered)
+modelbest <- drop1(modelall, test = "F")
+modelbest
+
+```
+
+```{r eliminate insignificant values}
+modelall2 <- lm(fatality ~ Model + Roadway.Type + Lighting + Crash.With + CP.Pre.Crash.Movement, data = dat_filtered)
+modelbest2 <- drop1(modelall2, test = "F")
+modelbest2
+plot(modelall2)
+```
